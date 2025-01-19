@@ -1,0 +1,43 @@
+name: Build RyzenAdj
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up MinGW
+      uses: egor-tensin/setup-mingw@v1
+      with:
+        architecture: x64
+
+    - name: Install CMake
+      uses: actions/runner-toolcache@v2
+      with:
+        tool: cmake
+        version: '3.24.0'
+
+    - name: Configure Build
+      run: |
+        mkdir build
+        cd build
+        cmake .. -G "MinGW Makefiles"
+
+    - name: Build Executable
+      run: |
+        cd build
+        mingw32-make
+
+    - name: Upload Executable
+      uses: actions/upload-artifact@v3
+      with:
+        name: RyzenAdj
+        path: build/ryzenadj.exe
